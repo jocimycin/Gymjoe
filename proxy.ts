@@ -3,7 +3,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function proxy(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  // Match next-auth's secureCookie logic: based on NEXTAUTH_URL, not VERCEL env var
+  const secureCookie = process.env.NEXTAUTH_URL?.startsWith("https://") ?? false;
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET, secureCookie });
 
   if (!token) {
     const loginUrl = new URL("/auth/login", req.url);
