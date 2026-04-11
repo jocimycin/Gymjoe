@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PlanContent } from "@/types";
 import { PlanSummary } from "@/components/dashboard/PlanSummary";
@@ -16,6 +16,14 @@ import Link from "next/link";
 type Tab = "workout" | "stretch" | "nutrition" | "timer";
 
 export default function DashboardPage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+function DashboardContent() {
   const router = useRouter();
   const params = useSearchParams();
   const [plan, setPlan] = useState<PlanContent | null>(null);
