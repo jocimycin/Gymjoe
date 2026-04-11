@@ -29,7 +29,7 @@ function DashboardContent() {
   const [plan, setPlan] = useState<PlanContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [genError, setGenError] = useState(false);
+  const [genError, setGenError] = useState<string | null>(null);
   const [activePhase, setActivePhase] = useState(1);
   const [activeDay, setActiveDay] = useState(0);
   const [tab, setTab] = useState<Tab>("workout");
@@ -52,13 +52,15 @@ function DashboardContent() {
         try {
           const res = await fetch("/api/generate-plan", { method: "POST" });
           if (!res.ok) {
-            setGenError(true);
+            let msg = `Server error ${res.status}`;
+            try { const d = await res.json() as { error?: string }; if (d.error) msg = d.error; } catch { /* ignore */ }
+            setGenError(msg);
             return;
           }
           await fetchPlan();
           router.replace("/dashboard");
-        } catch {
-          setGenError(true);
+        } catch (err) {
+          setGenError(err instanceof Error ? err.message : "Network error");
         } finally {
           setGenerating(false);
           setLoading(false);
@@ -80,9 +82,9 @@ function DashboardContent() {
     return (
       <main className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-6 text-center">
         <p className="font-display font-bold text-[#f0ede8] text-xl mb-2">Plan generation failed</p>
-        <p className="text-[#6b6b6b] text-sm mb-6">This usually means the AI took too long or an API key is missing.</p>
+        <p className="text-[#f06060] text-sm mb-6 max-w-xs">{genError}</p>
         <button
-          onClick={() => { setGenError(false); setGenerating(true); setLoading(true); router.push("/dashboard?generating=true"); }}
+          onClick={() => { setGenError(null); setGenerating(true); setLoading(true); router.push("/dashboard?generating=true"); }}
           className="px-6 py-3 rounded-xl bg-[#c8f060] text-[#0a0a0a] font-display font-bold text-sm"
         >
           Try again
