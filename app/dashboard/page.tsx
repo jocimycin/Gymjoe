@@ -29,6 +29,7 @@ function DashboardContent() {
   const [plan, setPlan] = useState<PlanContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [genError, setGenError] = useState(false);
   const [activePhase, setActivePhase] = useState(1);
   const [activeDay, setActiveDay] = useState(0);
   const [tab, setTab] = useState<Tab>("workout");
@@ -49,17 +50,24 @@ function DashboardContent() {
       if (shouldGenerate) {
         setGenerating(true);
         try {
-          await fetch("/api/generate-plan", { method: "POST" });
+          const res = await fetch("/api/generate-plan", { method: "POST" });
+          if (!res.ok) {
+            setGenError(true);
+            return;
+          }
           await fetchPlan();
+          router.replace("/dashboard");
+        } catch {
+          setGenError(true);
         } finally {
           setGenerating(false);
-          router.replace("/dashboard");
+          setLoading(false);
         }
       } else {
         const hasPlan = await fetchPlan();
         if (!hasPlan) router.push("/onboarding");
+        setLoading(false);
       }
-      setLoading(false);
     }
 
     init();
@@ -67,6 +75,22 @@ function DashboardContent() {
 
   if (generating) return <LoadingScreen />;
   if (loading) return <LoadingScreen />;
+
+  if (genError) {
+    return (
+      <main className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-6 text-center">
+        <p className="font-display font-bold text-[#f0ede8] text-xl mb-2">Plan generation failed</p>
+        <p className="text-[#6b6b6b] text-sm mb-6">This usually means the AI took too long or an API key is missing.</p>
+        <button
+          onClick={() => { setGenError(false); setGenerating(true); setLoading(true); router.push("/dashboard?generating=true"); }}
+          className="px-6 py-3 rounded-xl bg-[#c8f060] text-[#0a0a0a] font-display font-bold text-sm"
+        >
+          Try again
+        </button>
+      </main>
+    );
+  }
+
   if (!plan) return null;
 
   const currentPhase = plan.phases.find((p) => p.phase_number === activePhase);

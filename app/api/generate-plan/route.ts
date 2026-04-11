@@ -3,6 +3,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { anthropic, buildPrompt } from "@/lib/claude";
 
+export const maxDuration = 60;
+
 export async function POST() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
