@@ -57,6 +57,27 @@ function DashboardContent() {
             setGenError(msg);
             return;
           }
+
+          // Read the streaming NDJSON response
+          const reader = res.body?.getReader();
+          const decoder = new TextDecoder();
+          if (reader) {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              const text = decoder.decode(value);
+              for (const line of text.split("\n").filter(Boolean)) {
+                try {
+                  const msg = JSON.parse(line) as { status: string; error?: string };
+                  if (msg.status === "error") throw new Error(msg.error ?? "Generation failed");
+                } catch (parseErr) {
+                  if (parseErr instanceof SyntaxError) continue;
+                  throw parseErr;
+                }
+              }
+            }
+          }
+
           await fetchPlan();
           router.replace("/dashboard");
         } catch (err) {
