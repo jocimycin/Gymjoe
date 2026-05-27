@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<title>Joseph · Gym Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1e1e1e;
+  --border: rgba(255,255,255,0.08);
+  --text: #f0ede8;
+  --muted: #6b6b6b;
+  --accent: #c8f060;
+  --accent2: #60c8f0;
+  --accent3: #f0a060;
+  --red: #f06060;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+/* NAV */
+.nav { position: sticky; top: 0; z-index: 100; background: rgba(10,10,10,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 16px; }
+.nav-inner { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
+.nav-inner::-webkit-scrollbar { display: none; }
+.nav-btn { flex-shrink: 0; padding: 14px 16px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 500; color: var(--muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+.nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* HERO */
+.hero { padding: 28px 16px 20px; }
+.hero-label { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
+.hero-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; line-height: 1.1; margin-bottom: 6px; }
+.hero-title span { color: var(--accent); }
+.hero-sub { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+/* PILLS */
+.pills { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px; margin-bottom: 20px; }
+.pill { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; border: 1px solid; }
+.pill-green { background: rgba(200,240,96,0.08); color: var(--accent); border-color: rgba(200,240,96,0.2); }
+.pill-blue { background: rgba(96,200,240,0.08); color: var(--accent2); border-color: rgba(96,200,240,0.2); }
+.pill-amber { background: rgba(240,160,96,0.08); color: var(--accent3); border-color: rgba(240,160,96,0.2); }
+.pill-red { background: rgba(240,96,96,0.08); color: var(--red); border-color: rgba(240,96,96,0.2); }
+
+/* PHASE SELECTOR */
+.phase-row { display: flex; gap: 8px; padding: 0 16px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; }
+.phase-row::-webkit-scrollbar { display: none; }
+.phase-btn { flex-shrink: 0; padding: 10px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+.phase-btn.active { background: var(--accent); color: #0a0a0a; border-color: var(--accent); }
+
+/* DAY TABS */
+.day-tabs { display: flex; gap: 8px; padding: 0 16px; margin-bottom: 16px; }
+.day-tab { flex: 1; padding: 10px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; text-align: center; transition: all 0.2s; }
+.day-tab.active { background: var(--surface2); border-color: rgba(255,255,255,0.2); color: var(--text); }
+
+/* SECTION HEADER */
+.sec-header { padding: 0 16px; margin-bottom: 12px; }
+.sec-label { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+.sec-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; }
+.sec-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-top: 4px; }
+
+/* EXERCISE CARDS */
+.ex-list { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: border-color 0.2s; }
+.ex-card.open { border-color: rgba(255,255,255,0.15); }
+.ex-card-top { display: flex; align-items: center; gap: 12px; padding: 14px; }
+.ex-img { width: 72px; height: 60px; border-radius: 8px; object-fit: cover; background: var(--surface2); flex-shrink: 0; }
+.ex-img-placeholder { width: 72px; height: 60px; border-radius: 8px; background: var(--surface2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.ex-info { flex: 1; min-width: 0; }
+.ex-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; line-height: 1.2; }
+.ex-sets-row { display: flex; align-items: center; gap: 6px; }
+.ex-sets-badge { background: var(--surface2); border: 1px solid var(--border); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; color: var(--accent); font-family: 'Syne', sans-serif; }
+.ex-chevron { color: var(--muted); font-size: 16px; transition: transform 0.2s; flex-shrink: 0; }
+.ex-card.open .ex-chevron { transform: rotate(180deg); }
+.ex-detail { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border); margin-top: 0; }
+.ex-card.open .ex-detail { display: block; }
+.ex-detail-img { width: 100%; height: 180px; object-fit: cover; border-radius: 10px; margin: 12px 0 10px; background: var(--surface2); }
+.ex-how-label { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+.ex-how { font-size: 13px; color: var(--text); line-height: 1.6; }
+.safe-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+
+/* STRETCH CARDS */
+.stretch-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+.st-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+.st-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+.st-time { font-size: 11px; font-weight: 500; background: rgba(200,240,96,0.1); color: var(--accent); border: 1px solid rgba(200,240,96,0.2); padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+.st-how { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* NUTRITION */
+.macro-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 16px; margin-bottom: 16px; }
+.macro-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 8px; text-align: center; }
+.macro-val { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: var(--accent); }
+.macro-unit { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.macro-lbl { font-size: 11px; color: var(--text); font-weight: 500; margin-bottom: 2px; }
+
+.meal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin: 0 16px 12px; }
+.meal-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.meal-name { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; }
+.meal-kcal { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 6px; }
+.meal-kcal-w { background: rgba(240,160,96,0.1); color: var(--accent3); border: 1px solid rgba(240,160,96,0.2); }
+.meal-kcal-r { background: rgba(96,200,240,0.1); color: var(--accent2); border: 1px solid rgba(96,200,240,0.2); }
+.meal-time { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.meal-items { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.meal-macros { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.mp { font-size: 11px; padding: 2px 7px; border-radius: 5px; font-weight: 500; }
+.mp-p { background: rgba(96,200,240,0.1); color: var(--accent2); }
+.mp-c { background: rgba(240,160,96,0.1); color: var(--accent3); }
+.mp-f { background: rgba(200,240,96,0.1); color: var(--accent); }
+
+/* RULES */
+.rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; margin-bottom: 24px; }
+.rule-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; }
+.rule-head { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 800; margin-bottom: 4px; color: var(--text); }
+.rule-body { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+/* TIMER */
+.timer-wrap { margin: 0 16px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
+.timer-display { font-family: 'Syne', sans-serif; font-size: 56px; font-weight: 800; color: var(--accent); letter-spacing: -2px; line-height: 1; margin-bottom: 16px; }
+.timer-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
+.t-preset { padding: 8px 14px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
+.t-preset.sel { background: rgba(200,240,96,0.1); color: var(--accent); border-color: rgba(200,240,96,0.3); }
+.t-start { width: 100%; padding: 14px; border-radius: var(--radius-sm); background: var(--accent); color: #0a0a0a; font-family: 'Syne', sans-serif; font-size:15px; font-weight: 800; border: none; cursor: pointer; letter-spacing: 0.04em; }
+
+/* PANELS */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* BOTTOM SPACE */
+.bottom-space { height: 32px; }
+
+/* INJURY BANNER */
+.injury-banner { margin: 0 16px 16px; background: rgba(240,96,96,0.06); border: 1px solid rgba(240,96,96,0.15); border-radius: var(--radius-sm); padding: 12px 14px; }
+.injury-title { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 800; color: var(--red); margin-bottom: 4px; }
+.injury-body { font-size: 12px; color: rgba(240,200,200,0.7); line-height: 1.5; }
+
+/* GIF container for exercises */
+.ex-gif-wrap { width: 100%; background: var(--surface2); border-radius: 10px; margin: 12px 0 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 160px; }
+.ex-gif-wrap img { width: 100%; display: block; border-radius: 10px; }
+.ex-gif-fallback { padding: 20px; text-align: center; }
+.ex-gif-fallback .icon { font-size: 32px; margin-bottom: 8px; }
+.ex-gif-fallback p { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" onclick="showPanel('workout')">Workout</button>
+    <button class="nav-btn" onclick="showPanel('stretch')">Stretch</button>
+    <button class="nav-btn" onclick="showPanel('nutrition')">Nutrition</button>
+    <button class="nav-btn" onclick="showPanel('timer')">Timer</button>
+  </div>
+</div>
+
+<!-- ===== WORKOUT PANEL ===== -->
+<div id="panel-workout" class="panel active">
+  <div class="hero">
+    <div class="hero-label">12-week plan · Phase</div>
+    <div class="hero-title">Joseph's <span>Gym Plan</span></div>
+    <div class="hero-sub">3 days/week · Full gym · Injury-aware</div>
+  </div>
+  <div class="injury-banner">
+    <div class="injury-title">Injury rules — always apply</div>
+    <div class="injury-body">No lunges · No deep squats · Knee flexion max 90° · No sit-ups · Face pulls every upper session · No overhead press until Phase 2</div>
+  </div>
+  <div class="phase-row">
+    <button class="phase-btn active" onclick="setPhase(0,this)">Phase 1 · Wks 1-4</button>
+    <button class="phase-btn" onclick="setPhase(1,this)">Phase 2 · Wks 5-8</button>
+    <button class="phase-btn" onclick="setPhase(2,this)">Phase 3 · Wks 9-12</button>
+  </div>
+  <div class="day-tabs">
+    <button class="day-tab active" onclick="setDay(0,this)">Day A</button>
+    <button class="day-tab" onclick="setDay(1,this)">Day B</button>
+    <button class="day-tab" onclick="setDay(2,this)">Day C</button>
+  </div>
+  <div id="workout-content"></div>
+</div>
+
+<!-- ===== STRETCH PANEL ===== -->
+<div id="panel-stretch" class="panel">
+  <div class="hero">
+    <div class="hero-label">Daily mobility</div>
+    <div class="hero-title">Stretch <span>Routine</span></div>
+    <div class="hero-sub">Back · Knees · Shoulders — every day</div>
+  </div>
+  <div class="phase-row">
+    <button class="phase-btn active" onclick="setStretch('morning',this)">Morning (5 min)</button>
+    <button class="phase-btn" onclick="setStretch('workout',this)">Workout day</button>
+    <button class="phase-btn" onclick="setStretch('rest',this)">Rest day</button>
+  </div>
+  <div id="stretch-content"></div>
+</div>
+
+<!-- ===== NUTRITION PANEL ===== -->
+<div id="panel-nutrition" class="panel">
+  <div class="hero">
+    <div class="hero-label">Fat loss · Phase 1</div>
+    <div class="hero-title">Nutrition <span>Guide</span></div>
+    <div class="hero-sub">Workout day vs rest day eating</div>
+  </div>
+  <div class="phase-row">
+    <button class="phase-btn active" onclick="setNutrition('workout',this)">Workout day</button>
+    <button class="phase-btn" onclick="setNutrition('rest',this)">Rest day</button>
+    <button class="phase-btn" onclick="setNutrition('rules',this)">Ground rules</button>
+  </div>
+  <div id="nutrition-content"></div>
+</div>
+
+<!-- ===== TIMER PANEL ===== -->
+<div id="panel-timer" class="panel">
+  <div class="hero">
+    <div class="hero-label">Rest · Stretch · Hold</div>
+    <div class="hero-title">Gym <span>Timer</span></div>
+    <div class="hero-sub">Tap a preset or set your own</div>
+  </div>
+  <div class="timer-wrap">
+    <div class="timer-display" id="timer-display">1:30</div>
+    <div class="timer-btns">
+      <button class="t-preset" onclick="setTimer(30)">30s</button>
+      <button class="t-preset" onclick="setTimer(45)">45s</button>
+      <button class="t-preset sel" onclick="setTimer(90)">90s</button>
+      <button class="t-preset" onclick="setTimer(120)">2m</button>
+      <button class="t-preset" onclick="setTimer(180)">3m</button>
+    </div>
+    <button class="t-start" id="timer-start-btn" onclick="toggleTimer()">START</button>
+  </div>
+  <div class="sec-header" style="margin-top:0;">
+    <div class="sec-label">Quick reference</div>
+    <div class="sec-title">Rest periods</div>
+  </div>
+  <div class="ex-list">
+    <div class="stretch-card"><div class="st-header"><div class="st-name">Between sets (Phase 1-2)</div><span class="st-time">60–90 sec</span></div><div class="st-how">Standard working sets. Enough to recover without cooling down completely.</div></div>
+    <div class="stretch-card"><div class="st-header"><div class="st-name">Between sets (Phase 3 supersets)</div><span class="st-time">45–60 sec</span></div><div class="st-how">Shorter rest is what drives the metabolic effect in Phase 3.</div></div>
+    <div class="stretch-card"><div class="st-header"><div class="st-name">Stretch holds (cooldown)</div><span class="st-time">45–60 sec</span></div><div class="st-how">Minimum effective dose for a stretch to create lasting tissue change.</div></div>
+    <div class="stretch-card"><div class="st-header"><div class="st-name">Stretch holds (rest day)</div><span class="st-time">90 sec</span></div><div class="st-how">Deeper, longer holds on rest days for genuine mobility improvement.</div></div>
+    <div class="stretch-card"><div class="st-header"><div class="st-name">Sled / battle ropes</div><span class="st-time">30s on · 30s off</span></div><div class="st-how">Work-to-rest ratio for conditioning pieces in Phase 3.</div></div>
+  </div>
+  <div class="bottom-space"></div>
+</div>
+
+<script>
+// ====== DATA ======
+const phases = [
+  {
+    label: "Rebuild — weeks 1–4",
+    desc: "Re-establish movement patterns. Low load, high control. No knee flexion past 90°. Focus on posterior chain and core bracing.",
+    days: [
+      {
+        name: "Lower body + core",
+        exercises: [
+          { name: "Box squat (high box)", sets: "3 × 10", how: "Stand in front of a high box or bench. Sit back — not down — until you touch the box. Drive through your heels to stand. Stop at parallel, never go lower. Keep chest up and knees tracking over toes.", safe: ["knee safe"], gif: "https://media.giphy.com/media/3oEduMRJCNDwuKEDmU/giphy.gif", search: "box+squat+form" },
+          { name: "Glute bridge", sets: "3 × 15", how: "Lie flat on your back. Feet flat on floor, knees bent to about 70°. Drive hips straight up by squeezing your glutes hard. Pause 1 second at the top. Lower slowly. Do not arch your lower back.", safe: ["back safe","knee safe"], gif: "https://media.giphy.com/media/l0HlGHBMwpz1d9O2k/giphy.gif", search: "glute+bridge+exercise" },
+          { name: "Leg press (feet high)", sets: "3 × 12", how: "Place both feet high on the platform — about chest level. This shortens the range your knee needs to travel and reduces stress on the joint. Lower slowly, press through heels. Do not lock knees at the top.", safe: ["knee safe"], gif: "https://media.giphy.com/media/eiFMkCo3u7jCEf9afB/giphy.gif", search: "leg+press+high+feet" },
+          { name: "Dead bug", sets: "3 × 10/side", how: "Lie on back, arms pointing to ceiling, knees bent 90° in the air. Slowly lower your right arm overhead while extending your left leg — keep your lower back PRESSED into the floor throughout. Return and switch sides. This is a core stability exercise, not strength.", safe: ["back safe"], gif: "https://media.giphy.com/media/3oEduNF7DlpxgcHVJe/giphy.gif", search: "dead+bug+core+exercise" },
+          { name: "Standing calf raise", sets: "3 × 15", how: "Stand on the edge of a step or flat floor. Rise up on your toes slowly (2 sec up), pause at the top, lower slowly (3 sec down). Full range of motion. Can hold a dumbbell for added resistance.", safe: [], gif: "https://media.giphy.com/media/ZUjGnIkRClTwKLuQWQ/giphy.gif", search: "standing+calf+raise+gym" }
+        ]
+      },
+      {
+        name: "Upper body push + pull",
+        exercises: [
+          { name: "Seated cable row (neutral grip)", sets: "3 × 12", how: "Sit at the cable row machine. Use a neutral (palms facing) grip. Pull the handle to your lower chest, driving elbows close to your sides. Squeeze shoulder blades together at the end. Return slowly. Keep your back straight throughout — no leaning.", safe: ["shoulder safe","back safe"], gif: "https://media.giphy.com/media/LpkBAUDg53FI8xEUJL/giphy.gif", search: "cable+seated+row+form" },
+          { name: "Incline dumbbell press", sets: "3 × 10", how: "Set bench to 30–45° incline. Hold dumbbells above your chest, palms facing forward. Lower them to the sides of your chest — elbows at about 45° from your body, NOT flared out wide. Press back up without locking elbows. The incline is key for shoulder health.", safe: ["shoulder safe"], gif: "https://media.giphy.com/media/3oEduOnl5IHM5NRodO/giphy.gif", search: "incline+dumbbell+press" },
+          { name: "Lat pulldown (wide grip)", sets: "3 × 12", how: "Sit at the lat pulldown machine, lock thighs under pads. Take a wide overhand grip. Pull the bar to your upper chest by driving your elbows DOWN and BACK — imagine tucking your elbows into your back pockets. Lean back only slightly.", safe: [], gif: "https://media.giphy.com/media/3oEduKdWFVBzFSEkhi/giphy.gif", search: "lat+pulldown+form" },
+          { name: "Face pull (cable)", sets: "3 × 15", how: "Set cable machine to face height. Use a rope attachment. Pull the rope toward your face, splitting the rope apart as it reaches your ears — elbows should end up high and behind the line of the rope. This is your shoulder rehab exercise. Never skip it.", safe: ["shoulder rehab"], gif: "https://media.giphy.com/media/3oEduQAsYcJKQH2XsE/giphy.gif", search: "cable+face+pull+exercise" },
+          { name: "Forearm plank", sets: "3 × 20 sec", how: "Elbows under shoulders, forearms flat on ground. Toes on ground. Body forms a straight line from head to heels — squeeze glutes and core. Do NOT let hips sag or pike up. Build to 3 × 30 sec by week 4.", safe: ["back safe"], gif: "https://media.giphy.com/media/3oEduNbMuT14LyCNUI/giphy.gif", search: "forearm+plank+form" }
+        ]
+      },
+      {
+        name: "Full body + cardio",
+        exercises: [
+          { name: "Romanian deadlift (light)", sets: "3 × 10", how: "Stand holding dumbbells in front of your thighs. Hinge at the hips — push them BACK as you lower the weights down your legs. Keep a slight bend in the knees throughout. Lower until you feel a stretch in your hamstrings (usually shin level), then drive hips forward to stand. Keep your back flat.", safe: ["back safe","knee safe"], gif: "https://media.giphy.com/media/3oEduSbkTcKuXOcj7q/giphy.gif", search: "romanian+deadlift+dumbbell" },
+          { name: "Seated dumbbell shoulder press", sets: "3 × 10", how: "Sit on a bench with back support. Hold dumbbells at shoulder height, palms facing FORWARD, elbows at about 90°. Press up until arms are almost straight — do not lock out. Lower slowly. Do not lower below shoulder height — this protects your shoulder joint.", safe: ["shoulder safe"], gif: "https://media.giphy.com/media/3oEduMqRo7e3FLNQXO/giphy.gif", search: "seated+dumbbell+shoulder+press" },
+          { name: "Step-up (low box, 20cm)", sets: "3 × 10/leg", how: "Stand in front of a low box or step (about 20cm). Step up with one foot, pressing through your heel to bring your whole body up. Step back down controlled. The knee of the working leg should stay directly over your toes — not caving inward. Keep the box low for now.", safe: ["knee safe"], gif: "https://media.giphy.com/media/3oEduYKiZBOaVkmqWI/giphy.gif", search: "dumbbell+step+up+box" },
+          { name: "Bird-dog", sets: "3 × 10/side", how: "On all fours, hands under shoulders and knees under hips. Extend your right arm forward and left leg back simultaneously — both reaching parallel to the floor. Hold 2 seconds. Return slowly. No hip rotation, no swaying. Switch sides.", safe: ["back safe"], gif: "https://media.giphy.com/media/3oEduRsAgUNjYfGXCo/giphy.gif", search: "bird+dog+exercise+core" },
+          { name: "Stationary bike (low resistance)", sets: "20 min", how: "Set the seat high so your knee is almost straight at the bottom of the pedal stroke — this is key for your knee health. Resistance should be easy to moderate. Aim for 70–80 RPM. Breathe steadily. No pounding the joints like running.", safe: ["knee safe"], gif: "https://media.giphy.com/media/xT8qBmtcpRJY9bqDI4/giphy.gif", search: "stationary+bike+gym" }
+        ]
+      }
+    ]
+  },
+  {
+    label: "Strengthen — weeks 5–8",
+    desc: "Add load progressively. Compound patterns with more range. Core becomes an active driver. Cardio intensity increases.",
+    days: [
+      {
+        name: "Lower body + core",
+        exercises: [
+          { name: "Goblet squat", sets: "4 × 10", how: "Hold a dumbbell vertically at chest height with both hands. Feet shoulder width, toes slightly out. Squat down keeping the dumbbell close to your chest — elbows should brush inside your knees at the bottom. Drive through heels to stand. If needed, put small plates under your heels for balance.", safe: ["knee safe"], gif: "https://media.giphy.com/media/3oEduNbMuT14LyCNUI/giphy.gif", search: "goblet+squat+dumbbell+form" },
+          { name: "Romanian deadlift (heavier)", sets: "4 × 8", how: "Same form as Phase 1 — hip hinge, soft knee, back flat. Add 5–10kg from your Phase 1 weight. The key cue: your hips are the engine, your arms are just hooks. Only add weight when form is perfect.", safe: ["back safe"], gif: "https://media.giphy.com/media/3oEduSbkTcKuXOcj7q/giphy.gif", search: "romanian+deadlift+barbell" },
+          { name: "Hip thrust (barbell or smith)", sets: "3 × 12", how: "Place upper back on a bench. Roll a barbell across your hips (use a pad). Feet flat on floor. Drive hips up explosively until your body is parallel to the floor. Squeeze glutes hard at the top. Lower controlled.", safe: ["knee safe","back safe"], gif: "https://media.giphy.com/media/3oEduXHLEAsE9qjkCk/giphy.gif", search: "barbell+hip+thrust+form" },
+          { name: "Pallof press", sets: "3 × 12/side", how: "Set cable to belly-button height. Stand sideways to the machine. Hold cable handle at your chest with both hands. Press arms straight out in front — resist the cable pulling you toward the machine. Hold 2 sec, return. This is anti-rotation core work, the best kind.", safe: ["back safe"], gif: "https://media.giphy.com/media/3oEduNbMuT14LyCNUI/giphy.gif", search: "pallof+press+cable+core" },
+          { name: "Reverse sled drag", sets: "4 × 20m", how: "Load a sled (or use a resistance band around a fixed point). Walk BACKWARDS, pulling the load. Your legs are almost straight — this works the quads with ZERO knee flexion stress. Brilliant for your injury. Keep torso upright.", safe: ["knee safe"], gif: "https://media.giphy.com/media/3oEduQAsYcJKQH2XsE/giphy.gif", search: "sled+drag+backwards+gym" }
+        ]
+      },
+      {
+        name: "Upper body push + pull",
+        exercises: [
+          { name: "Barbell bent-over row", sets: "4 × 8", how: "Stand with feet hip width. Hinge forward at the hips — back flat, not rounded. Hold the bar with a double overhand grip. Pull the bar to your lower chest, driving elbows toward the ceiling. Lower controlled. The hinge position is critical for your back — if you feel any lower back strain, switch to a dumbbell version.", safe: ["back form critical"], gif: "https://media.giphy.com/media/LpkBAUDg53FI8xEUJL/giphy.gif", search: "barbell+bent+over+row+form" },
+          { name: "Incline dumbbell press (heavier)", sets: "4 × 8", how: "Same as Phase 1 but increase weight by 2–3kg per dumbbell. 30–45° bench angle. Elbows at 45°, not flared wide. 3 sec lowering, 1 sec pressing.", safe: ["shoulder safe"], gif: "https://media.giphy.com/media/3oEduOnl5IHM5NRodO/giphy.gif", search: "incline+dumbbell+bench+press" },
+          { name: "Cable face pull", sets: "3 × 15", how: "Every upper session, no exceptions. Rope attachment at face height. Pull to your ears — elbows end up high. External rotation at end range. Your posterior shoulder health depends on this movement.", safe: ["shoulder rehab"], gif: "https://media.giphy.com/media/3oEduQAsYcJKQH2XsE/giphy.gif", search: "cable+face+pull+rope" },
+          { name: "Seated dumbbell lateral raise", sets: "3 × 12", how: "Sit on a bench. Hold light dumbbells at your sides. Raise arms out to the side — stop exactly at shoulder height, not above. Slight bend in elbow. Lower slowly (3 sec). Never go above parallel — this protects your shoulder impingement zone.", safe: ["shoulder safe"], gif: "https://media.giphy.com/media/3oEduMqRo7e3FLNQXO/giphy.gif", search: "dumbbell+lateral+raise+seated" },
+          { name: "Ab wheel / cable crunch", sets: "3 × 12", how: "For cable crunch: kneel facing a high cable, hold rope at your forehead, and crunch DOWN toward your knees — not forward. For ab wheel: roll forward slowly from kneeling, keeping lower back flat. Return by engaging abs. No sit-ups or floor crunches — they compress the lumbar spine.", safe: ["back safe"], gif: "https://media.giphy.com/media/3oEduNbMuT14LyCNUI/giphy.gif", search: "ab+wheel+rollout+exercise" }
+        ]
+      },
+      {
+        name: "Full body + cardio",
+        exercises: [
+          { name: "Trap bar deadlift", sets: "4 × 6", how: "Stand inside the trap bar (hex bar). Feet hip width. Grip the handles. Hinge to reach — back flat, chest up. Push the floor away (don't think of pulling). This is more upright than a straight-bar deadlift, making it much kinder to your lower back.", safe: ["back safe","knee safe"], gif: "https://media.giphy.com/media/3oEduSbkTcKuXOcj7q/giphy.gif", search: "trap+bar+deadlift+form" },
+          { name: "Cable chest fly", sets: "3 × 12", how: "Set cables to mid height (both sides). Stand in the middle, one foot forward. Hold handles with slight bend in elbows. Bring hands together in front of your chest in a hugging motion. Squeeze the chest at the end. Return slowly. Mid-height angle is shoulder-safe.", safe: ["shoulder safe"], gif: "https://media.giphy.com/media/3oEduOnl5IHM5NRodO/giphy.gif", search: "cable+chest+fly+standing" },
+          { name: "Single-leg press", sets: "3 × 10/leg", how: "Same setup as the two-leg leg press — feet high on platform. But use one leg at a time. Note any difference in strength between left and right (your injured knees may be unbalanced). Never lower so the knee travels past your foot.", safe: ["knee aware"], gif: "https://media.giphy.com/media/eiFMkCo3u7jCEf9afB/giphy.gif", search: "single+leg+press+machine" },
+          { name: "Farmer carry", sets: "4 × 30m", how: "Pick up two heavy dumbbells (start with 20–25kg each if possible). Stand tall, shoulders packed down and back. Walk at a steady pace for 30 metres. Put down, rest 60 sec. This builds grip, core stability and upper back without any joint loading risk.", safe: [], gif: "https://media.giphy.com/media/3oEduQAsYcJKQH2XsE/giphy.gif", search: "farmer+carry+dumbbell+walk" },
+          { name: "Stationary bike (moderate)", sets: "25 min", how: "Increase to moderate resistance. Target 65–70% of your max heart rate (roughly 130 BPM). Seat high. You should be able to speak in short sentences. Builds aerobic base without joint impact.", safe: ["knee safe"], gif: "https://media.giphy.com/media/xT8qBmtcpRJY9bqDI4/giphy.gif", search: "stationary+bike+cardio+gym" }
+        ]
+      }
+    ]
+  },
+  {
+    label: "Burn — weeks 9–12",
+    desc: "Metabolic conditioning layered on your strength base. Supersets and circuits increase calorie burn. Injury rules stay in place. Fat loss accelerates.",
+    days: [
+      {
+        name: "Lower body circuit",
+        exercises: [
+          { name: "Goblet squat + hip thrust (superset)", sets: "4 × 10 each", how: "Do 10 goblet squats immediately followed by 10 hip thrusts — no rest between the two exercises. Rest 60 sec after the pair. This back-to-back approach spikes your heart rate while keeping the load manageable.", safe: ["knee safe"], gif: "https://media.giphy.com/media/3oEduXHLEAsE9qjkCk/giphy.gif", search: "superset+squat+hip+thrust" },
+          { name: "Romanian deadlift + step-up (superset)", sets: "4 × 10 each", how: "RDL to step-up, no rest between. Increase step box height to 30–35cm now that your knees have been trained for 8 weeks. Maintain all same form cues. Step through the heel of the lead foot.", safe: ["knee safe"], gif: "https://media.giphy.com/media/3oEduYKiZBOaVkmqWI/giphy.gif", search: "step+up+dumbbell+elevated" },
+          { name: "Sled push / drag", sets: "4 × 20m", how: "Push the sled forward (low handle, body angled forward) OR drag it backwards. The sled is the best fat-burning tool in the gym because it has no eccentric (lowering) phase — impossible to get sore from it. Load it up.", safe: ["knee safe","back safe"], gif: "https://media.giphy.com/media/3oEduQAsYcJKQH2XsE/giphy.gif", search: "sled+push+workout+gym" },
+          { name: "Plank with shoulder tap", sets: "3 × 20 taps", how: "Standard push-up position (not forearm). Touch right hand to left shoulder, right hand back down. Left hand to right shoulder. Hips should be STILL — no rocking. Each tap = 1 rep. 10 each side = 20 total.", safe: ["back safe","shoulder safe"], gif: "https://media.giphy.com/media/3oEduNbMuT14LyCNUI/giphy.gif", search: "plank+shoulder+tap+exercise" }
+        ]
+      },
+      {
+        name: "Upper body circuit",
+        exercises: [
+          { name: "Row + incline press (superset)", sets: "4 × 10 each", how: "Go straight from cable row to incline press with minimal rest between exercises. Rest 90 sec after the pair. Keep the same weights as your Phase 2 working sets — the superset format provides the added intensity.", safe: ["shoulder safe"], gif: "https://media.giphy.com/media/LpkBAUDg53FI8xEUJL/giphy.gif", search: "cable+row+superset+press" },
+          { name: "Face pull + lateral raise (superset)", sets: "3 × 15 / 12", how: "Face pull first (15 reps), then immediately lateral raise (12 reps). Still light on laterals — this shoulder combination builds the posterior/medial shoulder balance that prevents impingement long term.", safe: ["shoulder rehab"], gif: "https://media.giphy.com/media/3oEduMqRo7e3FLNQXO/giphy.gif", search: "face+pull+lateral+raise+superset" },
+          { name: "Farmer carry + ab wheel (superset)", sets: "4 rounds", how: "Walk 30m farmer carry, then immediately do 10 ab wheel rollouts. Rest 90 sec. This combination destroys your core and grip simultaneously — one of the highest calorie-burning combinations you can do.", safe: [], gif: "https://media.giphy.com/media/3oEduNbMuT14LyCNUI/giphy.gif", search: "farmer+carry+ab+wheel+superset" },
+          { name: "Cable curl + tricep pushdown (superset)", sets: "3 × 12 each", how: "Stand at cable machine. Bicep curl, then spin around for tricep pushdown. Fast pace, controlled form. Arms should be burning by the third round. Keep elbows pinned to your sides for both movements.", safe: [], gif: "https://media.giphy.com/media/3oEduKdWFVBzFSEkhi/giphy.gif", search: "cable+curl+pushdown+superset" }
+        ]
+      },
+      {
+        name: "Full body HIIT + cardio",
+        exercises: [
+          { name: "Trap bar deadlift (moderate)", sets: "3 × 8", how: "Start the session here but don't go max effort — it's a warm-up for the conditioning work to follow. Use about 70% of your Phase 2 working weight. Perfect form, controlled breathing.", safe: ["back safe"], gif: "https://media.giphy.com/media/3oEduSbkTcKuXOcj7q/giphy.gif", search: "trap+bar+deadlift+warm+up" },
+          { name: "Battle ropes", sets: "6 rounds · 30s on / 30s off", how: "Hold one end of each rope, feet shoulder width. Alternate arms in a wave pattern — or both arms together for slams. Stay low (slight knee bend is fine here — it's standing, not deep). 30 seconds maximum effort, 30 seconds rest.", safe: ["knee safe"], gif: "https://media.giphy.com/media/3oEduXHLEAsE9qjkCk/giphy.gif", search: "battle+ropes+gym+workout" },
+          { name: "Rowing machine", sets: "30 min", how: "Sit on the rower, feet strapped in. Drive with your LEGS first, then lean back, then pull arms to your lower chest. Return in reverse order: arms, then lean forward, then bend knees. Vary pace every 5 min: 2 min hard (24+ strokes/min), 3 min moderate.", safe: ["knee safe","back safe"], gif: "https://media.giphy.com/media/xT8qBmtcpRJY9bqDI4/giphy.gif", search: "rowing+machine+form+gym" },
+          { name: "Core finisher: dead bug + pallof press", sets: "2 rounds each, no rest", how: "Dead bug: 10 reps/side. Then immediately pallof press: 12 reps/side. 2 full rounds. This ends every session — takes 4 minutes and keeps your core injury-resistant as load increases across Phase 3.", safe: ["back safe"], gif: "https://media.giphy.com/media/3oEduRsAgUNjYfGXCo/giphy.gif", search: "dead+bug+pallof+press+core" }
+        ]
+      }
+    ]
+  }
+];
+
+const stretches = {
+  morning: {
+    label: "Morning wakeup — 5 min",
+    desc: "Do this every day before getting out of bed. Reduces morning stiffness and sets up your joints for the day.",
+    items: [
+      { name: "Knee-to-chest rock", time: "30 sec", how: "In bed, pull both knees to chest. Wrap arms around shins. Gently rock side to side 10 times. Releases overnight compression in your lower back. Do this before standing up.", tags: ["back"] },
+      { name: "Cat-cow (floor)", time: "5 rounds", how: "On all fours, hands under shoulders. Arch your spine up toward ceiling (cat), then drop belly and lift head (cow). 5 slow, full rounds. Your spine is stiffest in the morning — this lubricates it.", tags: ["back"] },
+      { name: "Thread the needle", time: "30 sec / side", how: "On all fours. Slide right arm under your body to the left, resting that shoulder and ear on the floor. Feel the thoracic rotation. Hold, breathe. One of the best openers for upper back and shoulder tightness.", tags: ["shoulder","back"] },
+      { name: "Seated ankle circles", time: "20 sec / foot", how: "Sit on the bed edge. Lift one foot, rotate ankle slowly 10 times each direction. Ankle mobility directly affects how your knee tracks — this 40 seconds matters.", tags: ["knee"] },
+      { name: "Standing side bend", time: "10 sec × 2 / side", how: "Stand, reach one arm overhead and bend to the side. Feel the stretch along your side waist. Hold 10 sec, switch. Releases the QL muscle — the most common driver of that nagging low back tightness from sitting.", tags: ["back"] }
+    ]
+  },
+  workout: {
+    label: "Workout day — pre + post",
+    desc: "5 min dynamic warm-up before lifting. 10 min static cooldown after. Never skip the cooldown — it is where adaptation and injury prevention happen.",
+    items: [
+      { name: "Cat-cow warm-up", time: "10 reps", how: "Same as morning routine but slightly faster. Wakes up the spinal extensors and gets your thoracic spine mobile before loading it.", tags: ["back","pre-workout"] },
+      { name: "Arm circles + cross-body swings", time: "30 sec", how: "Small to large circles forward and back. Then let arms swing freely across your chest. No forcing the range — just loose, rhythmic movement. Gets blood into the shoulder capsule before pressing.", tags: ["shoulder","pre-workout"] },
+      { name: "Supine knee hug", time: "8 reps / side", how: "Lie on back. Pull one knee to chest, hold 5 sec, release. Alternate. Mobilises hip flexor and knee without loading the joint. Your knees need this before any lower body work.", tags: ["knee","pre-workout"] },
+      { name: "Glute bridge pulse", time: "2 × 10", how: "Activate your glutes before loading them. Same as the exercise but lighter and pulsing. Establishes the mind-muscle connection before your working sets.", tags: ["back","pre-workout"] },
+      { name: "Child's pose (cooldown)", time: "60 sec", how: "Kneel, sit hips toward heels (use folded towel under knees if needed). Arms extended forward on the floor. Hold and breathe deeply into your lower back. This decompresses the lumbar spine after loading.", tags: ["back","post-workout"] },
+      { name: "Supine figure-4", time: "45 sec / side", how: "Lie on back. Cross right ankle over left knee, flex foot. Pull left thigh toward chest. Feel deep in right glute and hip. Crucial for knee health — tight hip rotators directly pull on the knee.", tags: ["knee","post-workout"] },
+      { name: "Doorway chest opener", time: "45 sec", how: "Stand in a doorway, arms at 90°, lean gently forward. Feel the stretch across the front of your shoulders and chest. Counteracts the rounded posture from pressing movements.", tags: ["shoulder","post-workout"] },
+      { name: "Hip flexor lunge stretch", time: "45 sec / side", how: "One knee on ground, other foot forward. Tuck pelvis under, lean forward. Tight hip flexors pull on your lower back and change knee alignment. This is one of the highest-value stretches for your injury profile.", tags: ["back","knee","post-workout"] }
+    ]
+  },
+  rest: {
+    label: "Rest day — deep recovery",
+    desc: "Longer holds, more time per position. This is where long-term mobility is built and chronic pain actually reduces.",
+    items: [
+      { name: "Supine spinal twist", time: "90 sec / side", how: "Lie on back. Pull right knee to chest, let it fall to the left. Arms out wide, look right. Breathe into the rotation. Decompresses individual lumbar vertebrae in a way no other stretch can replicate.", tags: ["back"] },
+      { name: "90/90 hip stretch", time: "90 sec / side", how: "Sit on floor with both legs at 90° (one forward, one to the side). Sit tall, lean gently over your front shin. Targets the deep hip rotators — this is the source of much of your knee stress and back tightness. The single most important rest day stretch for your profile.", tags: ["back","knee"] },
+      { name: "Sleeper stretch", time: "60 sec / side", how: "Lie on your side, bad shoulder down. Arm at 90°, forearm pointing up. Use your other hand to gently press the forearm toward the floor. You feel this in the back of the shoulder joint. Targets the posterior capsule — the specific tissue involved in shoulder impingement.", tags: ["shoulder"] },
+      { name: "Wall slide", time: "10 slow reps", how: "Back to wall, arms in goalpost position pressed against wall. Slide arms slowly upward keeping full contact with the wall. If contact breaks, you've found your mobility limit — work just below it. Resets shoulder blade position.", tags: ["shoulder","back"] },
+      { name: "Supine hamstring stretch (strap)", time: "60 sec / side", how: "Lie on back. Loop a towel around one foot, extend leg toward ceiling. Knee is soft, not locked. Tight hamstrings are one of the biggest drivers of both lower back pain and poor knee mechanics. This one stretch has an outsized effect on your whole injury picture.", tags: ["knee","back"] },
+      { name: "Elevated calf + Achilles stretch", time: "60 sec / side", how: "Stand on a step edge, heels hanging off. Let heels drop. Then slight knee bend for the Achilles version. Calf tightness travels up through the Achilles, knee, and hamstring — releasing it reduces knee loading by improving ankle mobility.", tags: ["knee"] },
+      { name: "Child's pose with side reach", time: "45 sec / side", how: "From child's pose, walk hands to the right. Hold. Then to the left. Opens the lateral back and lats that tighten from pulling exercises and desk posture. Breathe into the stretch — try to widen your ribcage with each inhale.", tags: ["back","shoulder"] }
+    ]
+  }
+};
+
+const nutrition = {
+  workout: {
+    label: "Workout day eating",
+    calories: 2200, protein: 180, carbs: 200, fat: 65,
+    desc: "More carbs, more total calories — you trained, so you refuel. Biggest carb hit goes around training.",
+    meals: [
+      { name: "Breakfast", time: "7 – 8am", kcal: "~500 kcal", items: "3 whole eggs + 2 egg whites scrambled · 2 slices sourdough toast · Half avocado · Black coffee or tea", p: 35, c: 40, f: 20 },
+      { name: "Pre-workout snack", time: "60–90 min before training", kcal: "~300 kcal", items: "Greek yogurt 200g · Banana · Small handful of oats mixed in. Fast-digesting carbs + protein without heaviness.", p: 20, c: 45, f: 8 },
+      { name: "Post-workout meal", time: "Within 60 min after", kcal: "~600 kcal", items: "200g chicken or salmon · 200g white rice or sweet potato · Large portion roasted or steamed vegetables. Highest carb meal of the day.", p: 50, c: 70, f: 12 },
+      { name: "Dinner", time: "6 – 7:30pm", kcal: "~550 kcal", items: "150g lean beef, turkey, or legumes · Large salad with olive oil · Half cup quinoa or lentils. Lower carbs than lunch — training is done.", p: 45, c: 35, f: 18 },
+      { name: "Evening snack (optional)", time: "If hungry before bed", kcal: "~250 kcal", items: "200g cottage cheese or casein shake. Slow-digesting protein supports overnight muscle repair. Skip if not hungry.", p: 30, c: 10, f: 7 }
+    ]
+  },
+  rest: {
+    label: "Rest day eating",
+    calories: 1800, protein: 180, carbs: 120, fat: 65,
+    desc: "Lower carbs, same protein. Body is repairing — protein and fats but less fuel. This is where fat loss happens.",
+    meals: [
+      { name: "Breakfast", time: "7 – 9am", kcal: "~450 kcal", items: "4-egg omelette with spinach, mushrooms, and feta · Black coffee or tea. No toast — save carbs for where they count.", p: 35, c: 8, f: 28 },
+      { name: "Lunch", time: "12 – 1pm", kcal: "~550 kcal", items: "Large salad · 200g tuna or grilled chicken · Mixed greens, cucumber, tomato · Half cup chickpeas · Olive oil and lemon dressing.", p: 50, c: 35, f: 20 },
+      { name: "Dinner", time: "6 – 7:30pm", kcal: "~550 kcal", items: "200g salmon or lean beef · Large portion roasted vegetables (no starchy carbs) · Half avocado. Fat is today's energy source instead of carbs.", p: 45, c: 20, f: 30 },
+      { name: "Snack", time: "Afternoon or evening", kcal: "~250 kcal", items: "2 boiled eggs + handful of almonds, or protein shake with a tablespoon of nut butter. No fruit today — keep insulin lower on rest days.", p: 20, c: 5, f: 18 }
+    ]
+  },
+  rules: null
+};
+
+const rulesList = [
+  { head: "Protein is non-negotiable", body: "180g every day, workout or rest. This preserves muscle while you lose fat. Without it your body strips muscle alongside fat." },
+  { head: "Carbs follow training", body: "Workout days: rice, oats, banana, sweet potato. Rest days: mostly vegetables and legumes. Time them, don't eliminate them." },
+  { head: "Do not skip fat", body: "Fat keeps testosterone healthy, lubricates joints, and keeps you full. Keep it at 60–70g minimum — especially important for your joints." },
+  { head: "Hydration", body: "3–4 litres of water daily. More on workout days. Dehydration significantly increases perceived joint pain." },
+  { head: "The belly rule", body: "Visceral fat responds to a sustained calorie deficit over weeks. No single food causes or removes belly fat. Consistency over 8–12 weeks is the mechanism." },
+  { head: "Alcohol", body: "Pauses fat burning for 12–24 hours after consumption and disrupts sleep quality. Limit to 1–2 occasions per week maximum during the 12-week plan." },
+  { head: "Anti-inflammatory foods", body: "Eat salmon 2–3x per week, add turmeric to food, eat berries regularly. These reduce inflammation which directly affects back and knee pain levels." },
+  { head: "Do not over-restrict", body: "400–500 kcal deficit is the sweet spot. Eating too little spikes cortisol which deposits fat around the belly. Patient beats aggressive." }
+];
+
+// ====== STATE ======
+let currentPhase = 0, currentDay = 0, currentStretch = 'morning', currentNutrition = 'workout';
+let timerSec = 90, timerOriginal = 90, timerRunning = false, timerInterval = null;
+
+// ====== RENDER WORKOUT ======
+function renderWorkout() {
+  const phase = phases[currentPhase];
+  const day = phase.days[currentDay];
+  const tagColors = {
+    'knee safe': 'pill-green', 'knee aware': 'pill-amber', 'knee warn': 'pill-red',
+    'back safe': 'pill-blue', 'back form critical': 'pill-amber',
+    'shoulder safe': 'pill-blue', 'shoulder rehab': 'pill-green'
+  };
+  let html = `<div class="sec-header"><div class="sec-label">${phase.label}</div><div class="sec-title">${day.name}</div><div class="sec-desc">${phase.desc}</div></div><div class="ex-list">`;
+  day.exercises.forEach((ex, i) => {
+    const safePills = ex.safe.map(s => `<span class="pill ${tagColors[s]||'pill-blue'}">${s}</span>`).join('');
+    const imgUrl = `https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&q=60`;
+    const wikimediaMap = {
+      'box squat': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Squats.gif/220px-Squats.gif',
+      'glute bridge': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gluteus_bridge.gif/220px-Gluteus_bridge.gif',
+      'dead bug': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Dead_bug_%28exercise%29.gif/220px-Dead_bug_%28exercise%29.gif',
+      'bird-dog': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Bird_dog_%28exercise%29.gif/220px-Bird_dog_%28exercise%29.gif',
+      'romanian deadlift': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Romanian_Deadlift.gif/220px-Romanian_Deadlift.gif',
+      'forearm plank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Plank_position.jpg/220px-Plank_position.jpg',
+    };
+    const exKey = ex.name.toLowerCase();
+    let gifSrc = null;
+    for (const k in wikimediaMap) { if (exKey.includes(k)) { gifSrc = wikimediaMap[k]; break; } }
+    const ytSearch = encodeURIComponent(ex.name + ' exercise form tutorial');
+    html += `<div class="ex-card" id="ex-${i}" onclick="toggleEx(${i})">
+      <div class="ex-card-top">
+        <div class="ex-img-placeholder">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"><path d="M6.5 6.5h.01M17.5 6.5h.01M6.5 17.5h.01M17.5 17.5h.01M12 8v8M8 12h8"/></svg>
+        </div>
+        <div class="ex-info">
+          <div class="ex-name">${ex.name}</div>
+          <div class="ex-sets-row"><span class="ex-sets-badge">${ex.sets}</span></div>
+        </div>
+        <div class="ex-chevron">▼</div>
+      </div>
+      <div class="ex-detail">
+        <div class="ex-gif-wrap" id="gif-wrap-${i}">
+          ${gifSrc ? `<img src="${gifSrc}" alt="${ex.name}" style="width:100%;border-radius:10px;" onerror="showGifFallback(${i}, '${ytSearch}')">` : `<div class="ex-gif-fallback"><div class="icon" style="font-size:24px;margin-bottom:8px;">▶</div><p>Search <strong style="color:var(--accent)">"${ex.name}"</strong> on YouTube for a video demo</p></div>`}
+        </div>
+        <div class="ex-how-label">How to do it</div>
+        <div class="ex-how">${ex.how}</div>
+        <div class="safe-tags">${safePills}</div>
+        <div style="margin-top:12px;"><a href="https://www.youtube.com/results?search_query=${ytSearch}" style="font-size:12px;color:var(--accent2);text-decoration:none;" target="_blank">Watch video demo on YouTube →</a></div>
+      </div>
+    </div>`;
+  });
+  html += '</div><div class="bottom-space"></div>';
+  document.getElementById('workout-content').innerHTML = html;
+}
+
+function showGifFallback(i, search) {
+  const wrap = document.getElementById('gif-wrap-' + i);
+  if (wrap) wrap.innerHTML = `<div class="ex-gif-fallback"><p>Search <strong style="color:var(--accent)">"${decodeURIComponent(search).replace('+exercise+form+tutorial','')}"</strong> on YouTube for a demo video</p></div>`;
+}
+
+function toggleEx(i) {
+  const card = document.getElementById('ex-' + i);
+  card.classList.toggle('open');
+}
+
+function setPhase(n, btn) {
+  currentPhase = n; currentDay = 0;
+  document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.day-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.day-tab')[0].classList.add('active');
+  renderWorkout();
+}
+
+function setDay(n, btn) {
+  currentDay = n;
+  document.querySelectorAll('.day-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderWorkout();
+}
+
+// ====== RENDER STRETCH ======
+const tagCol = { back: 'pill-blue', knee: 'pill-green', shoulder: 'pill-amber', 'pre-workout': 'pill-amber', 'post-workout': 'pill-blue' };
+function renderStretch() {
+  const s = stretches[currentStretch];
+  let html = `<div class="sec-header"><div class="sec-label">${s.label}</div><div class="sec-desc">${s.desc}</div></div><div class="ex-list">`;
+  s.items.forEach(item => {
+    const tags = item.tags.map(t => `<span class="pill ${tagCol[t]||'pill-blue'}">${t}</span>`).join('');
+    html += `<div class="stretch-card"><div class="st-header"><div class="st-name">${item.name}</div><span class="st-time">${item.time}</span></div><div class="st-how">${item.how}</div><div class="safe-tags" style="margin-top:8px;">${tags}</div></div>`;
+  });
+  html += '</div><div class="bottom-space"></div>';
+  document.getElementById('stretch-content').innerHTML = html;
+}
+
+function setStretch(id, btn) {
+  currentStretch = id;
+  document.querySelectorAll('#panel-stretch .phase-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStretch();
+}
+
+// ====== RENDER NUTRITION ======
+function renderNutrition() {
+  let html = '';
+  if (currentNutrition === 'rules') {
+    html = `<div class="sec-header"><div class="sec-label">Always apply</div><div class="sec-title">Ground rules</div></div><div class="rule-grid">`;
+    rulesList.forEach(r => { html += `<div class="rule-card"><div class="rule-head">${r.head}</div><div class="rule-body">${r.body}</div></div>`; });
+    html += '</div><div class="bottom-space"></div>';
+  } else {
+    const n = nutrition[currentNutrition];
+    html = `<div class="sec-header"><div class="sec-label">${n.label}</div><div class="sec-desc">${n.desc}</div></div>
+    <div class="macro-strip">
+      <div class="macro-box"><div class="macro-lbl">Calories</div><div class="macro-val">${n.calories}</div><div class="macro-unit">kcal/day</div></div>
+      <div class="macro-box"><div class="macro-lbl">Protein</div><div class="macro-val">${n.protein}g</div><div class="macro-unit">~1.6g/kg</div></div>
+      <div class="macro-box"><div class="macro-lbl">Carbs</div><div class="macro-val">${n.carbs}g</div><div class="macro-unit">fuel</div></div>
+      <div class="macro-box"><div class="macro-lbl">Fat</div><div class="macro-val">${n.fat}g</div><div class="macro-unit">joints</div></div>
+    </div>`;
+    n.meals.forEach(m => {
+      html += `<div class="meal-card">
+        <div class="meal-top"><div class="meal-name">${m.name}</div><span class="meal-kcal ${currentNutrition==='workout'?'meal-kcal-w':'meal-kcal-r'}">${m.kcal}</span></div>
+        <div class="meal-time">${m.time}</div>
+        <div class="meal-items">${m.items}</div>
+        <div class="meal-macros"><span class="mp mp-p">P: ${m.p}g</span><span class="mp mp-c">C: ${m.c}g</span><span class="mp mp-f">F: ${m.f}g</span></div>
+      </div>`;
+    });
+    html += '<div class="bottom-space"></div>';
+  }
+  document.getElementById('nutrition-content').innerHTML = html;
+}
+
+function setNutrition(id, btn) {
+  currentNutrition = id;
+  document.querySelectorAll('#panel-nutrition .phase-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderNutrition();
+}
+
+// ====== PANELS ======
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// ====== TIMER ======
+function fmtTime(s) { return Math.floor(s/60) + ':' + (s%60 < 10 ? '0' : '') + s%60; }
+function setTimer(s) {
+  clearInterval(timerInterval); timerRunning = false;
+  timerSec = s; timerOriginal = s;
+  document.getElementById('timer-display').textContent = fmtTime(s);
+  document.getElementById('timer-start-btn').textContent = 'START';
+  document.querySelectorAll('.t-preset').forEach(b => b.classList.remove('sel'));
+  event.target.classList.add('sel');
+}
+function toggleTimer() {
+  const btn = document.getElementById('timer-start-btn');
+  if (timerRunning) {
+    clearInterval(timerInterval); timerRunning = false; btn.textContent = 'RESUME';
+  } else {
+    if (timerSec <= 0) { timerSec = timerOriginal; }
+    timerRunning = true; btn.textContent = 'PAUSE';
+    timerInterval = setInterval(() => {
+      timerSec--;
+      document.getElementById('timer-display').textContent = fmtTime(timerSec);
+      if (timerSec <= 0) {
+        clearInterval(timerInterval); timerRunning = false;
+        btn.textContent = 'DONE ✓';
+        if ('vibrate' in navigator) navigator.vibrate([200,100,200]);
+      }
+    }, 1000);
+  }
+}
+
+// ====== INIT ======
+renderWorkout();
+renderStretch();
+renderNutrition();
+</script>
+</body>
+</html>
